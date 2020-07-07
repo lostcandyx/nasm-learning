@@ -5,7 +5,7 @@
 %include        'functions.asm'
  
 SECTION .data
-msg_n       db      '123456789012345678901234', 0Ah, 0h      
+msg_n       db      '[ welcome to the game  ]', 0Ah, 0h      
 msg         db      '|                      |', 0Ah, 0h
 
 SECTION .bss
@@ -14,14 +14,14 @@ show:       RESW        1
 SECTION .text
 global  _start
 
-_start
+_start:
     mov     eax, msg_n
     call    sprint
-    mov     show,0
+    mov     ecx,0
 
 loop:
-    inc show
-    cmp show,15
+    inc ecx
+    cmp ecx,15
     jz letsquit
     mov     eax, msg
     call    sprint
