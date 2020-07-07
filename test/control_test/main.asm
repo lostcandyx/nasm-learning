@@ -1,42 +1,152 @@
-; Hello World Program (Getting input)
-; Compile with: nasm -f elf helloworld-input.asm
-; Link with (64 bit systems require elf_i386 option): ld -m elf_i386 helloworld-input.o -o helloworld-input
-; Run with: ./helloworld-input
- 
 %include        'functions.asm'
- 
+
+%define key_buf_size 	512
+%define key_code  		26
+%define key_value  		28
 SECTION .data
-msg_n       db      '[ welcome to the game  ]', 0Ah, 0h      
-msg         db      '|                      |', 0Ah, 0h
- 
+k_input 		db 		"/dev/input/event3", 0x0
+title       	db      '[ welcome to this game ]', 0Ah, 0h      
+border    	    db      '|                      |', 0Ah, 0h
+w_msg			db		'|  keyboard w pressed  |', 0Ah, 0h
+a_msg			db		'|  keyboard a pressed  |', 0Ah, 0h
+s_msg			db		'|  keyboard s pressed  |', 0Ah, 0h
+d_msg			db		'|  keyboard d pressed  |', 0Ah, 0h
+x_msg			db		'|  keyboard x pressed  |', 0Ah, 0h
+q_msg			db		'|  keyboard q pressed  |', 0Ah, 0h
+space       db    ' ', 0Ah, 0h
+
 SECTION .bss
-sinput:     resb    1                                ; 为控制信号预留两个字节
- 
+key_buf resb key_buf_size
+
+
 SECTION .text
 global  _start
  
 _start:
- 
-    mov     eax, msg_n
-    call    sprint
- 
- loop:
-    mov     edx, 1          ; number of bytes to read
-    mov     ecx, sinput     ; reserved space to store our input (known as a buffer)
-    mov     ebx, 0          ; write to the STDIN file
-    mov     eax, 3          ; invoke SYS_READ (kernel opcode 3)
-    int     80h
+	mov     eax, title
+	call    sprint
+loop:
+	call _game_l_readk_input
+   mov     eax, title
+   call    sprint
+   mov     ecx,0
+   jmp     displayloop
 
-    cmp     sinput, 120     ; 选取x作为退出键
-    jz      letsquit
- 
-    mov     eax, 0Ah
-    call    sprint
- 
-    mov     eax, sinput     ; move our buffer into eax (Note: input contains a linefeed)
-    call    sprint          ; call our print function
+displayloop:
+   inc ecx
+   cmp ecx,14
+   jz loop
+   mov     eax, border
+   call    sprint
+   jmp displayloop
 
-    jmp loop
+_game_l_readk_input:
+		mov eax, 5
+		mov ebx, k_input
+		mov ecx, 0
+		int 0x80
 
- letsquit:
-    call    quit
+		mov eax, 3
+		mov ebx, eax
+		mov ecx, key_buf
+		mov edx, key_buf_size
+		int 0x80
+
+;		mov eax, 4
+;		mov ebx, 1
+;		mov ecx, key_buf
+;		mov edx, key_buf_size
+;		int 0x80
+
+		call analyze_byte
+		ret
+
+analyze_byte:
+		mov     eax, key_buf
+		mov		ebx, key_value
+    	add     eax, ebx
+
+		cmp     byte [eax], 1
+		jz      pressed
+		jmp		released
+	pressed:
+    	mov     eax, key_buf
+		mov		ebx, key_code
+    	add     eax, ebx
+
+		cmp     byte [eax], 17		; w
+		jz      w_pressed
+
+		cmp     byte [eax], 30		; a
+		jz      a_pressed
+
+		cmp     byte [eax], 31		; s
+		jz      s_pressed
+
+		cmp     byte [eax], 32		; d
+		jz      d_pressed
+
+		cmp     byte [eax], 45		; x
+		jz      x_pressed
+
+		cmp     byte [eax], 16		; q
+		jz      q_pressed
+
+		jmp     released
+	
+	w_pressed:
+      mov 	eax, space
+		call sprint
+		mov 	eax, w_msg
+		call sprint
+		mov		eax, 1
+		jmp		finish
+	
+	a_pressed:
+      mov 	eax, space
+		call sprint
+		mov 	eax, a_msg
+		call sprint
+		mov		eax, 2
+		jmp		finish
+	
+	s_pressed:
+      mov 	eax, space
+		call sprint
+		mov 	eax, s_msg
+		call sprint
+		mov		eax, 3
+		jmp		finish
+
+	d_pressed:
+      mov 	eax, space
+		call sprint
+		mov 	eax, d_msg
+		call sprint
+		mov		eax, 4
+		jmp		finish
+
+	x_pressed:
+      mov 	eax, space
+		call sprint
+		mov 	eax, x_msg
+		call sprint
+		mov		eax, 5
+		jmp		finish
+
+	q_pressed:
+      mov 	eax, space
+		call sprint
+		mov 	eax, q_msg
+		call sprint
+		mov		eax, 6
+		jmp		finish
+
+	released:
+		mov		eax, 0
+		jmp		finish
+
+
+	finish:
+;		call    iprintLF
+		ret
