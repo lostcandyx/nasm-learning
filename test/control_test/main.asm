@@ -13,7 +13,7 @@ s_msg			db		'|  keyboard s pressed  |', 0Ah, 0h
 d_msg			db		'|  keyboard d pressed  |', 0Ah, 0h
 x_msg			db		'|  keyboard x pressed  |', 0Ah, 0h
 q_msg			db		'|  keyboard q pressed  |', 0Ah, 0h
-space       db    ' ', 0Ah, 0h
+space       	db    ' ', 0Ah, 0h
 
 SECTION .bss
 key_buf resb key_buf_size
