@@ -1,0 +1,5 @@
+Linux version 4.15.0-29-generic (buildd@lcy01-amd64-024) 
+(gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.10)) 
+#31~16.04.1-Ubuntu SMP Wed Jul 18 08:54:04 UTC 2018
+
+NASM version 2.11.08
